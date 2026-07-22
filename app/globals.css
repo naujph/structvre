@@ -1,0 +1,51 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --accent: #22d3ee;
+  --accent-soft: rgba(34, 211, 238, 0.14);
+  --accent-strong: rgba(34, 211, 238, 0.55);
+  --accent-glow: rgba(34, 211, 238, 0.28);
+  --bg: #0b1020;
+  --bg-elevated: #0f172a;
+  --surface: rgba(15, 23, 42, 0.72);
+  --surface-solid: #111827;
+  --glass: rgba(255, 255, 255, 0.07);
+  --glass-border: rgba(255, 255, 255, 0.12);
+  --text: #f0f9ff;
+  --muted: #94a3b8;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  min-height: 100vh;
+}
+
+/* Logo S chrome */
+.logo-s {
+  fill: url(#chrome-gradient);
+  filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.4));
+}
+
+/* Glass card */
+.glass-card {
+  background: var(--surface);
+  border: 1px solid var(--glass-border);
+  backdrop-filter: blur(18px);
+  border-radius: 18px;
+}
+
+/* Animated background gradient */
+.animated-bg {
+  background:
+    radial-gradient(circle at 10% 0%, rgba(34, 211, 238, 0.10), transparent 35%),
+    radial-gradient(circle at 90% 10%, rgba(99, 102, 241, 0.10), transparent 35%),
+    var(--bg);
+}

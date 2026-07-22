@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+model Product {
+  id                   Int       @id @default(autoincrement())
+  name                 String
+  brand                String
+  category             String
+  protocol             String
+  compatibility        String
+  price                Float     @default(0)
+  marketplaceUrl       String?   @map("marketplace_url")
+  affiliateUrl         String?   @map("affiliate_url")
+  imageUrl             String?   @map("image_url")
+  description          String?
+  requiresProfessional Boolean   @default(false) @map("requires_professional")
+  requiresNeutralWire Boolean   @default(false) @map("requires_neutral_wire")
+  isRentalFriendly     Boolean   @default(true) @map("is_rental_friendly")
+  difficulty           String    @default("facil")
+  isActive             Boolean   @default(true) @map("is_active")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+  kitItems             KitItem[]
+
+  @@map("products")
+}
+
+model Kit {
+  id                  Int       @id @default(autoincrement())
+  name                String
+  slug                String    @unique
+  category            String
+  targetBudget        String    @map("target_budget")
+  homeType            String    @map("home_type")
+  hasAssistant        String    @map("has_assistant")
+  protocol            String    @default("wifi")
+  requiresNeutralWire Boolean   @default(false) @map("requires_neutral_wire")
+  isRentalFriendly    Boolean   @default(true) @map("is_rental_friendly")
+  difficulty          String    @default("facil")
+  description         String?
+  imageUrl            String?   @map("image_url")
+  isActive            Boolean   @default(true) @map("is_active")
+  totalPrice          Float     @default(0) @map("total_price")
+  items               KitItem[]
+
+  @@map("kits")
+}
+
+model KitItem {
+  id        Int     @id @default(autoincrement())
+  kitId     Int     @map("kit_id")
+  productId Int     @map("product_id")
+  quantity  Int     @default(1)
+  notes     String?
+  kit       Kit     @relation(fields: [kitId], references: [id], onDelete: Cascade)
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@map("kit_items")
+}
+
+model Lead {
+  id               Int      @id @default(autoincrement())
+  name             String?
+  email            String?
+  phone            String?
+  city             String?
+  state            String?
+  latitude         Float?
+  longitude        Float?
+  geoSource        String?  @map("geo_source")
+  homeType         String?  @map("home_type")
+  budget           String?
+  automationGoals  String[] @map("automation_goals")
+  kitRecommendedId Int?     @map("kit_recommended_id")
+  wantsInstaller   Boolean  @default(false) @map("wants_installer")
+  quizSessionId    Int?     @map("quiz_session_id")
+  temperature      String?  @default("cold")
+  hermesSentAt     DateTime? @map("hermes_sent_at")
+  hermesError      String?  @map("hermes_error")
+  createdAt        DateTime @default(now()) @map("created_at")
+
+  @@map("leads")
+}
+
+model QuizSession {
+  id              Int           @id @default(autoincrement())
+  externalId      String        @unique @map("external_id") @default(uuid())
+  channel         String        @default("web")
+  status          String        @default("started")
+  userAgent       String?       @map("user_agent")
+  ipHash          String?       @map("ip_hash")
+  startedAt       DateTime      @default(now()) @map("started_at")
+  completedAt     DateTime?     @map("completed_at")
+  detectedPersonaId Int?       @map("detected_persona_id")
+  finalKitId      Int?          @map("final_kit_id")
+  leadId          Int?          @map("lead_id")
+  quizAnswers     QuizAnswer[]
+
+  @@map("quiz_sessions")
+}
+
+model QuizQuestion {
+  id              Int     @id @default(autoincrement())
+  order           Int     @default(0)
+  code            String  @unique
+  question        String
+  allowsMultiple  Boolean @default(false) @map("allows_multiple")
+  options         Json?   // [{ value: string, label: string }]
+  dimension       String  @default("geral")
+  impactWeight    Float   @default(1.0) @map("impact_weight")
+  stage           String?
+  optional        Boolean @default(false)
+  isActive        Boolean @default(true) @map("is_active")
+
+  @@map("quiz_questions")
+}
+
+model QuizAnswer {
+  id            Int    @id @default(autoincrement())
+  sessionId     Int    @map("session_id")
+  questionId    Int?   @map("question_id")
+  questionCode  String @map("question_code")
+  value         Json
+  orderIndex    Int    @map("order_index")
+  session       QuizSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+
+  @@map("quiz_answers")
+}
