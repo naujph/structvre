@@ -60,6 +60,7 @@ export default function DiagnosticPage() {
   const [recommendation, setRecommendation] = useState<Recommendation | null>(
     null
   );
+  const [persona, setPersona] = useState<{ slug: string; name: string } | null>(null);
 
   const stages = useMemo(() => groupByStage(questions), [questions]);
 
@@ -195,6 +196,7 @@ export default function DiagnosticPage() {
       const data = await resp.json();
       if (!resp.ok) throw new Error(data.error || "Erro ao carregar recomendação");
       setRecommendation(data.top_recommendations?.[0] || null);
+      setPersona(data.persona || null);
       setView("result");
     } catch (err: any) {
       console.error(err);
@@ -347,7 +349,7 @@ export default function DiagnosticPage() {
         {view === "result" && recommendation && (
           <ResultCard
             recommendation={recommendation}
-            personaName="seu perfil"
+            personaName={persona?.name || "seu perfil"}
           />
         )}
       </main>

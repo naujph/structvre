@@ -1,6 +1,7 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  trailingSlash: false,
   images: {
     domains: ['images.unsplash.com', 'placehold.co'],
     unoptimized: true,
@@ -12,20 +13,7 @@ const nextConfig = {
     return [
       // Caminhos antigos do Flask
       { source: '/diagnostico/v2', destination: '/diagnostico', permanent: true },
-      { source: '/conteudo', destination: '/conteudo', permanent: false },
       { source: '/kit/:slug', destination: '/kits', permanent: true },
-    ];
-  },
-  async rewrites() {
-    return [
-      {
-        source: '/api/v1/diagnostic/sessions/:id/answers',
-        destination: '/api/v1/diagnostic/sessions/:id/answers/',
-      },
-      {
-        source: '/api/v1/diagnostic/sessions/:id/recommendations',
-        destination: '/api/v1/diagnostic/sessions/:id/recommendations/',
-      },
     ];
   },
 }

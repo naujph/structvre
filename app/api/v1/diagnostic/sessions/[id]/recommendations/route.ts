@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { sendLeadToHermes } from "@/lib/hermes";
+import { recommendKits } from "@/lib/diagnostic/recommendation";
 
 export async function POST(
   request: Request,
@@ -29,61 +30,9 @@ export async function POST(
       answersDict[a.questionCode] = a.value;
     }
 
-    if (!answersDict.faixa) {
-      return NextResponse.json(
-        { error: "Budget not answered yet" },
-        { status: 400 }
-      );
-    }
+    const { top: topRecommendations, persona } = await recommendKits(answersDict, data.limit || 3);
 
-    // TODO: portar recommend_kits do Flask. Stub enquanto isso.
-    const topRecommendations = [
-      {
-        kit_id: 1,
-        name: "Kit Comfort",
-        slug: "comfort",
-        category: "comfort",
-        total_price: 7490,
-        image_url: null,
-        score: 0.88,
-        score_breakdown: { conforto: 0.9, economia: 0.8, seguranca: 0.75, tech: 0.9 },
-        explanation:
-          "Ideal para quem quer começar pela sala e quarto com conforto e economia de energia.",
-        reasons: [
-          "Foco em conforto",
-          "Orçamento compatível",
-          "Instalação simplificada",
-        ],
-        products: [
-          {
-            id: 1,
-            name: "Hub central",
-            brand: "Strucvre",
-            category: "hub",
-            price: 890,
-            quantity: 1,
-            affiliate_url: "#",
-            marketplace_url: "#",
-            image_url: null,
-            requires_professional: false,
-            difficulty: "easy",
-          },
-          {
-            id: 2,
-            name: "Interruptor inteligente",
-            brand: "Strucvre",
-            category: "iluminacao",
-            price: 180,
-            quantity: 4,
-            affiliate_url: "#",
-            marketplace_url: "#",
-            image_url: null,
-            requires_professional: false,
-            difficulty: "easy",
-          },
-        ],
-      },
-    ];
+    const recommendedKit = topRecommendations[0] || null;
 
     let leadId: number | null = null;
     let hermesResult: { sent: boolean; status?: number; error?: string } = { sent: false };
@@ -101,6 +50,7 @@ export async function POST(
           homeType: answersDict.tipo_imovel as string | null,
           budget: answersDict.faixa as string | null,
           automationGoals: normalizeList(answersDict.objetivo_principal),
+          kitRecommendedId: recommendedKit?.kit_id ?? null,
           quizSessionId: sessionId,
           wantsInstaller: answersDict.modo_instalacao === "instalador",
           temperature: calculateTemperature(answersDict, contact),
@@ -147,19 +97,18 @@ export async function POST(
         status: "completed",
         completedAt: new Date(),
         leadId,
+        finalKitId: recommendedKit?.kit_id ?? null,
       },
     });
 
+    // Nunca expomos hermes_* no response do browser — o envio é silencioso
     return NextResponse.json({
       session_id: sessionId,
-      persona: { slug: "comfort", name: "Conforto" },
+      persona,
       fallback_used: false,
       top_recommendations: topRecommendations,
       lead_id: leadId,
       project_id: null,
-      hermes_sent: hermesResult.sent,
-      hermes_status: hermesResult.status,
-      hermes_error: hermesResult.error,
     });
   } catch (error) {
     console.error("[diagnostic/recommendations]", error);

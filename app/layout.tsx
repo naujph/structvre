@@ -5,7 +5,7 @@ export const metadata: Metadata = {
   title: "Strucvre — Arquitetura Inteligente para sua Casa",
   description:
     "Descubra o projeto de automação residencial ideal para seu estilo de vida. Diagnóstico imersivo, kits personalizados e orçamento em minutos.",
-  keywords: ["automação residencial", "casa inteligente", "kits smart home", "instalador IoT"],
+  keywords: ["automação residencial", "casa inteligente", "kits de automação", "instalador IoT"],
   authors: [{ name: "Strucvre" }],
   openGraph: {
     title: "Strucvre — Arquitetura Inteligente para sua Casa",
