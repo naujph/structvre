@@ -8,6 +8,7 @@ const NAV_LINKS = [
   { href: "/#como-funciona", label: "Como funciona" },
   { href: "/#experiencia", label: "Experiência" },
   { href: "/#kits", label: "Kits" },
+  { href: "/explorar", label: "Explorar" },
   { href: "/conteudo", label: "Conteúdo" },
   { href: "/instaladores", label: "Instaladores" },
 ];
@@ -79,6 +80,9 @@ export function SiteHeader() {
           <a href="/#kits" className="transition-colors hover:text-cyan-300">
             Kits
           </a>
+          <Link href="/explorar" className="transition-colors hover:text-cyan-300">
+            Explorar
+          </Link>
           <Link href="/conteudo" className="transition-colors hover:text-cyan-300">
             Conteúdo
           </Link>

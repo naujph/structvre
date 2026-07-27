@@ -16,8 +16,9 @@ model Product {
   protocol             String
   compatibility        String
   price                Float     @default(0)
+  marketplace          String?   // amazon | shopee | mercadolivre | aliexpress
   marketplaceUrl       String?   @map("marketplace_url")
-  affiliateUrl         String?   @map("affiliate_url")
+  affiliateUrl         String?   @map("affiliate_url") // link manual; vazio = derivar em runtime
   imageUrl             String?   @map("image_url")
   description          String?
   requiresProfessional Boolean   @default(false) @map("requires_professional")

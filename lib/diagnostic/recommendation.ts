@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/db";
+import { buildAffiliateUrl } from "@/lib/affiliate";
 
 export interface RecommendationProduct {
   id: number;
@@ -126,6 +127,18 @@ export async function recommendKits(
   const userHomeType = answers.tipo_imovel as string | null;
   const installMode = answers.modo_instalacao as string | null;
   const userRooms = answers.comodos as unknown;
+  const ecosystem = (answers.ecossistema as string | null) ?? null;
+
+  // Hubs de voz por ecossistema — o diagnóstico decide qual assistente entra no kit.
+  const assistentes = await prisma.product.findMany({
+    where: { category: "assistente", isActive: true },
+  });
+  const swapAssistente =
+    ecosystem && ecosystem !== "sem_preferencia"
+      ? assistentes.find((a) =>
+          a.compatibility.split(",").map((s) => s.trim()).includes(ecosystem),
+        ) ?? null
+      : null;
 
   const scored = kits.map((kit) => {
     const budget = scoreBudget(kit.targetBudget, userBudget);
@@ -159,28 +172,50 @@ export async function recommendKits(
     if (home >= 0.9) reasons.push("Compatível com seu imóvel");
     if (difficulty >= 0.9) reasons.push("Instalação adequada ao seu perfil");
     if (rooms >= 0.8) reasons.push("Cobre os cômodos escolhidos");
+    if (swapAssistente && ecosystem) {
+      const label =
+        ecosystem === "alexa"
+          ? "Alexa"
+          : ecosystem === "google_home"
+          ? "Google Home"
+          : "HomeKit";
+      reasons.push(`Compatível com seu ${label}`);
+    }
     if (reasons.length === 0) reasons.push("Kits disponíveis para o seu perfil");
 
-    const products: RecommendationProduct[] = kit.items.map((item) => ({
-      id: item.product.id,
-      name: item.product.name,
-      brand: item.product.brand,
-      category: item.product.category,
-      price: item.product.price,
-      quantity: item.quantity,
-      affiliate_url: item.product.affiliateUrl,
-      marketplace_url: item.product.marketplaceUrl,
-      image_url: item.product.imageUrl,
-      requires_professional: item.product.requiresProfessional,
-      difficulty: item.product.difficulty,
-    }));
+    const products: RecommendationProduct[] = kit.items.map((item) => {
+      // Troca o assistente do kit pelo do ecossistema escolhido pelo usuário.
+      const product =
+        swapAssistente && item.product.category === "assistente"
+          ? swapAssistente
+          : item.product;
+      return {
+        id: product.id,
+        name: product.name,
+        brand: product.brand,
+        category: product.category,
+        price: product.price,
+        quantity: item.quantity,
+        affiliate_url: buildAffiliateUrl(product),
+        marketplace_url: product.marketplaceUrl,
+        image_url: product.imageUrl,
+        requires_professional: product.requiresProfessional,
+        difficulty: product.difficulty,
+      };
+    });
+
+    // Recalcula o total a partir dos produtos (o hub pode ter sido trocado).
+    const totalPrice = products.reduce(
+      (sum, p) => sum + p.price * p.quantity,
+      0,
+    );
 
     const recommendation: Recommendation = {
       kit_id: kit.id,
       name: kit.name,
       slug: kit.slug,
       category: kit.category,
-      total_price: kit.totalPrice,
+      total_price: totalPrice,
       image_url: kit.imageUrl,
       score,
       score_breakdown: {
