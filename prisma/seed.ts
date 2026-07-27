@@ -261,7 +261,7 @@ const KITS = [
     name: "Start",
     slug: "start",
     category: "start",
-    targetBudget: "ate_3000",
+    targetBudget: "1500_3000",
     homeType: "todos",
     hasAssistant: "sem_preferencia",
     protocol: "wifi",
@@ -280,7 +280,7 @@ const KITS = [
     name: "Comfort",
     slug: "comfort",
     category: "comfort",
-    targetBudget: "3000_7000",
+    targetBudget: "3000_5000",
     homeType: "todos",
     hasAssistant: "sem_preferencia",
     protocol: "wifi",
@@ -300,7 +300,7 @@ const KITS = [
     name: "Secure",
     slug: "secure",
     category: "secure",
-    targetBudget: "3000_7000",
+    targetBudget: "3000_5000",
     homeType: "todos",
     hasAssistant: "sem_preferencia",
     protocol: "wifi",
@@ -321,7 +321,7 @@ const KITS = [
     name: "Living Plus",
     slug: "living-plus",
     category: "living_plus",
-    targetBudget: "7000_15000",
+    targetBudget: "7000_10000",
     homeType: "casa",
     hasAssistant: "sem_preferencia",
     protocol: "wifi",
@@ -408,7 +408,7 @@ const QUESTIONS = [
     // configuram o <input type="range">. O número arrastado é convertido em
     // tier (<3000/3000-7000/7000-15000) em numberToTier, mantendo o motor de
     // recomendação (scoreBudget) inalterado.
-    options: [{ value: "range", label: "Faixa de investimento", min: 0, max: 10000, step: 500 }],
+    options: [{ value: "range", label: "Faixa de investimento", min: 0, max: 30000, step: 500 }],
   },
   {
     order: 6,

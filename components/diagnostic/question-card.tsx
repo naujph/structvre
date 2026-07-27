@@ -178,30 +178,6 @@ export function QuestionCard({
   );
 }
 
-/**
- * Mapeia o valor numérico do slider para o tier que o motor de recomendação
- * espera (scoreBudget lê answers.faixa como tier). Mantém o motor inalterado.
- */
-function numberToTier(n: number): string {
-  if (n < 3000) return "ate_3000";
-  if (n < 7000) return "3000_7000";
-  return "7000_15000";
-}
-
-/** Reverte tier → posição aproximada no slider (para reabrir/perguntas salvas). */
-function tierToNumber(tier: string | string[] | null | undefined): number {
-  switch (typeof tier === "string" ? tier : "") {
-    case "ate_3000":
-      return 2500;
-    case "3000_7000":
-      return 5000;
-    case "7000_15000":
-      return 8500;
-    default:
-      return 5000;
-  }
-}
-
 function BudgetSlider({
   option,
   value,
@@ -212,12 +188,13 @@ function BudgetSlider({
   onChange: (value: string) => void;
 }) {
   const min = option.min ?? 0;
-  const max = option.max ?? 10000;
+  const max = option.max ?? 30000;
   const step = option.step ?? 500;
-  // Estado local para o thumb seguir o arraste suavemente; o tier só é
-  // commitado em onChange. Re-inicializa do valor salvo ao remontar (voltar).
+  // Armazena o valor em R$ (numero) — o motor converte pra faixa internamente
+  // e a narrativa cita o valor real. Re-inicializa do salvo ao remontar (voltar).
+  const stored = typeof value === "string" && value !== "" ? Number(value) : NaN;
   const [rangeValue, setRangeValue] = useState<number>(() =>
-    tierToNumber(value),
+    Number.isFinite(stored) ? stored : 5000,
   );
 
   return (
@@ -237,7 +214,7 @@ function BudgetSlider({
         onChange={(e) => {
           const n = Number(e.target.value);
           setRangeValue(n);
-          onChange(numberToTier(n));
+          onChange(String(n));
         }}
         className="mt-5 h-2 w-full cursor-pointer accent-cyan-400"
         aria-label="Faixa de investimento"

@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { buildAffiliateUrl } from "@/lib/affiliate";
+import { buildNarrative } from "@/lib/diagnostic/narrative";
 
 export interface RecommendationProduct {
   id: number;
@@ -29,7 +30,45 @@ export interface Recommendation {
   products: RecommendationProduct[];
 }
 
-const BUDGET_ORDER = ["ate_3000", "3000_7000", "7000_15000", "acima_15000"];
+const BUDGET_ORDER = [
+  "ate_1500",
+  "1500_3000",
+  "3000_5000",
+  "5000_7000",
+  "7000_10000",
+  "10000_15000",
+  "15000_22000",
+  "22000_30000",
+];
+
+/** Converte o valor numérico (R$) do slider num tier de BUDGET_ORDER. */
+export function budgetTierFromNumber(
+  n: number | null | undefined,
+): string | null {
+  if (n == null || !Number.isFinite(n)) return null;
+  if (n < 1500) return "ate_1500";
+  if (n < 3000) return "1500_3000";
+  if (n < 5000) return "3000_5000";
+  if (n < 7000) return "5000_7000";
+  if (n < 10000) return "7000_10000";
+  if (n < 15000) return "10000_15000";
+  if (n < 22000) return "15000_22000";
+  return "22000_30000";
+}
+
+/**
+ * Resolve o tier de orçamento do usuário a partir de answers.faixa, que pode
+ * ser o valor numérico (R$) do slider ("5000") ou, em sessões antigas, um tier
+ * legado ("ate_3000"). Retorna null se ausente/inválido.
+ */
+function resolveUserBudget(faixa: unknown): string | null {
+  if (typeof faixa === "number") return budgetTierFromNumber(faixa);
+  if (typeof faixa === "string" && faixa !== "") {
+    if (BUDGET_ORDER.includes(faixa)) return faixa; // legado: tier antigo
+    return budgetTierFromNumber(Number(faixa)); // slider: valor em R$
+  }
+  return null;
+}
 
 function budgetIndex(value: string | null): number {
   if (!value) return -1;
@@ -122,7 +161,7 @@ export async function recommendKits(
     include: { items: { include: { product: true } } },
   });
 
-  const userBudget = answers.faixa as string | null;
+  const userBudget = resolveUserBudget(answers.faixa);
   const userGoal = answers.objetivo_principal as string | null;
   const userHomeType = answers.tipo_imovel as string | null;
   const installMode = answers.modo_instalacao as string | null;
@@ -139,6 +178,11 @@ export async function recommendKits(
           a.compatibility.split(",").map((s) => s.trim()).includes(ecosystem),
         ) ?? null
       : null;
+
+  // Persona derivada do objetivo principal — usada para rotular o orçamento e
+  // alimentar a narrativa (toque de personalidade por hobby). Computada antes do
+  // map para ficar disponível dentro de buildNarrative.
+  const persona = detectPersona(userGoal);
 
   const scored = kits.map((kit) => {
     const budget = scoreBudget(kit.targetBudget, userBudget);
@@ -164,24 +208,6 @@ export async function recommendKits(
       rental * weights.rental +
       difficulty * weights.difficulty +
       rooms * weights.rooms;
-
-    const reasons: string[] = [];
-    if (budget >= 0.9) reasons.push("Orçamento ideal");
-    else if (budget >= 0.6) reasons.push("Dentro do orçamento");
-    if (goal >= 0.9) reasons.push("Foco no seu objetivo principal");
-    if (home >= 0.9) reasons.push("Compatível com seu imóvel");
-    if (difficulty >= 0.9) reasons.push("Instalação adequada ao seu perfil");
-    if (rooms >= 0.8) reasons.push("Cobre os cômodos escolhidos");
-    if (swapAssistente && ecosystem) {
-      const label =
-        ecosystem === "alexa"
-          ? "Alexa"
-          : ecosystem === "google_home"
-          ? "Google Home"
-          : "HomeKit";
-      reasons.push(`Compatível com seu ${label}`);
-    }
-    if (reasons.length === 0) reasons.push("Kits disponíveis para o seu perfil");
 
     const products: RecommendationProduct[] = kit.items.map((item) => {
       // Troca o assistente do kit pelo do ecossistema escolhido pelo usuário.
@@ -210,6 +236,28 @@ export async function recommendKits(
       0,
     );
 
+    // Narrativa rica em PT-BR: cita orçamento real (R$), objetivo, imóvel,
+    // cômodos, ecossistema, dificuldade e toque de personalidade por hobby.
+    const narrative = buildNarrative({
+      kitName: kit.name,
+      kitCategory: kit.category,
+      kitDescription: kit.description,
+      totalPrice,
+      scores: { budget, goal, home, rental, difficulty, rooms },
+      answers: {
+        tipo_imovel: userHomeType,
+        comodos: Array.isArray(userRooms) ? (userRooms as string[]) : null,
+        objetivo_principal: userGoal,
+        ecossistema: ecosystem,
+        faixa: answers.faixa as string | number | null,
+        hobbies: Array.isArray(answers.hobbies)
+          ? (answers.hobbies as string[])
+          : null,
+      },
+      personaName: persona.name,
+      productCount: products.length,
+    });
+
     const recommendation: Recommendation = {
       kit_id: kit.id,
       name: kit.name,
@@ -226,10 +274,8 @@ export async function recommendKits(
         difficulty,
         rooms,
       },
-      explanation:
-        kit.description ||
-        `Kit ${kit.name} recomendado com base no seu perfil.`,
-      reasons,
+      explanation: narrative.explanation,
+      reasons: narrative.reasons,
       products,
     };
 
@@ -239,7 +285,6 @@ export async function recommendKits(
   scored.sort((a, b) => b.score - a.score);
 
   const top = scored.slice(0, limit);
-  const persona = detectPersona(userGoal);
 
   return { top, persona };
 }
