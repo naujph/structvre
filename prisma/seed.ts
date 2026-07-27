@@ -8,11 +8,11 @@ const prisma = new PrismaClient();
 // category "assistente" = hub de voz (troca por ecossistema no diagnóstico);
 // category "hub" = bridge Zigbee (agnóstico).
 //
-// ASINs pesquisados em 2026-07 (amazon.com.br). 8 produtos têm dp direto
-// (buildAffiliateUrl anexa ?tag=strv08-20). Os 7 com "#" não estão listados na
+// ASINs pesquisados em 2026-07 (amazon.com.br). 9 produtos têm dp direto
+// (buildAffiliateUrl anexa ?tag=strv08-20). Os 6 com "#" não estão listados na
 // Amazon BR (Nest Hub 2, HomePod mini, Sonoff Bridge não-Pro, Intelbras IFW
-// 1000 = modelo a confirmar, Aqara Motion P1, BroadLink RM4 Mini, SwitchBot
-// Curtain 2) e seguem no fallback de busca — ainda afiliado, só pousa na busca.
+// 1000 = modelo a confirmar, BroadLink RM4 Mini, SwitchBot Curtain 2) e seguem
+// no fallback de busca — ainda afiliado, só pousa na busca.
 const PRODUCTS = [
   {
     name: "Amazon Echo Dot 5ª geração",
@@ -150,7 +150,7 @@ const PRODUCTS = [
     compatibility: "alexa,google_home,homekit",
     price: 199,
     marketplace: "amazon",
-    marketplaceUrl: "#",
+    marketplaceUrl: "https://www.amazon.com.br/dp/B0FGVKNZQ7",
     affiliateUrl: "#",
     requiresProfessional: false,
     requiresNeutralWire: false,
