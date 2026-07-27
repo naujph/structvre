@@ -25,22 +25,22 @@ export function DeviceLayer({ device }: { device: Device }) {
 
 function DeviceSilhouette({ device }: { device: Exclude<Device, null> }) {
   const { halo, shape } = DEVICES[device];
-  // mesa de apoio no canto inferior direito
-  const cx = 1280;
+  // mesa de apoio, trazida para dentro para não cortar na borda direita
+  const cx = 1180;
   const baseY = 760;
 
   return (
     <motion.g
-      initial={{ opacity: 0, scale: 0.7 }}
-      animate={{ opacity: 1, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.7 }}
+      initial={{ opacity: 0, scale: 0.78 }}
+      animate={{ opacity: 1, scale: 1.12 }}
+      exit={{ opacity: 0, scale: 0.78 }}
       transition={{ duration: 0.45, ease: "easeOut" }}
       style={{ transformOrigin: `${cx}px ${baseY}px` }}
     >
       {/* mesa */}
-      <rect x={cx - 40} y={baseY} width="80" height="14" rx="3" fill="#11161f" />
-      <rect x={cx - 36} y={baseY + 14} width="10" height="40" fill="#1a212e" />
-      <rect x={cx + 26} y={baseY + 14} width="10" height="40" fill="#1a212e" />
+      <rect x={cx - 40} y={baseY} width="80" height="14" rx="3" fill="#1b2536" />
+      <rect x={cx - 36} y={baseY + 14} width="10" height="40" fill="#2a3346" />
+      <rect x={cx + 26} y={baseY + 14} width="10" height="40" fill="#2a3346" />
 
       {/* halo pulsante atrás do aparelho */}
       <motion.circle
@@ -73,8 +73,8 @@ function DeviceSilhouette({ device }: { device: Exclude<Device, null> }) {
       {shape === "cylinder" && (
         <g>
           <ellipse cx={cx} cy={baseY - 64} rx="34" ry="10" fill={halo} opacity="0.9" />
-          <rect x={cx - 34} y={baseY - 64} width="68" height="24" fill="#11161f" />
-          <ellipse cx={cx} cy={baseY - 40} rx="34" ry="10" fill="#1a212e" />
+          <rect x={cx - 34} y={baseY - 64} width="68" height="24" fill="#1b2536" />
+          <ellipse cx={cx} cy={baseY - 40} rx="34" ry="10" fill="#2a3346" />
           <motion.ellipse
             cx={cx}
             cy={baseY - 64}
@@ -89,7 +89,7 @@ function DeviceSilhouette({ device }: { device: Exclude<Device, null> }) {
 
       {shape === "screen" && (
         <g>
-          <rect x={cx - 30} y={baseY - 70} width="60" height="58" rx="10" fill="#11161f" />
+          <rect x={cx - 30} y={baseY - 70} width="60" height="58" rx="10" fill="#1b2536" />
           <rect x={cx - 24} y={baseY - 64} width="48" height="34" rx="4" fill="#0d1422" />
           <motion.circle
             cx={cx}
@@ -99,14 +99,14 @@ function DeviceSilhouette({ device }: { device: Exclude<Device, null> }) {
             animate={{ opacity: [0.4, 1, 0.4] }}
             transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
           />
-          <rect x={cx - 8} y={baseY - 18} width="16" height="10" rx="3" fill="#1a212e" />
+          <rect x={cx - 8} y={baseY - 18} width="16" height="10" rx="3" fill="#2a3346" />
         </g>
       )}
 
       {shape === "puck" && (
         <g>
-          <ellipse cx={cx} cy={baseY - 30} rx="40" ry="14" fill="#11161f" />
-          <ellipse cx={cx} cy={baseY - 44} rx="40" ry="14" fill="#1a212e" />
+          <ellipse cx={cx} cy={baseY - 30} rx="40" ry="14" fill="#1b2536" />
+          <ellipse cx={cx} cy={baseY - 44} rx="40" ry="14" fill="#2a3346" />
           <motion.ellipse
             cx={cx}
             cy={baseY - 44}

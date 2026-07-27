@@ -35,9 +35,12 @@ export function DiagnosticScene({ answers, lastAnsweredCode }: DiagnosticScenePr
       <DeviceLayer device={scene.device} />
       <AmbientMotes />
 
-      {/* scrim para legibilidade do conteúdo (z-10 acima) */}
-      <div className="absolute inset-0 bg-slate-950/70" />
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-950/40 via-transparent to-slate-950/85" />
+      {/* scrim base leve — cena visível nas laterais em desktop */}
+      <div className="absolute inset-0 bg-slate-950/35" />
+      {/* zona central escura concentrada atrás do card max-w-3xl (legibilidade do texto) */}
+      <div className="absolute inset-0 bg-[radial-gradient(ellipse_62%_58%_at_50%_42%,rgba(2,6,23,0.78)_0%,rgba(2,6,23,0.58)_45%,transparent_78%)]" />
+      {/* velatura topo/base sutil para profundidade sem matar a sala */}
+      <div className="absolute inset-0 bg-gradient-to-b from-slate-950/30 via-transparent to-slate-950/55" />
     </div>
   );
 }

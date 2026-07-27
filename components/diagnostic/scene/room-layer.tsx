@@ -23,9 +23,9 @@ export function RoomLayer({ room, palette }: RoomLayerProps) {
     >
       <defs>
         <linearGradient id="wallShade" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor="#000" stopOpacity="0.35" />
+          <stop offset="0%" stopColor="#000" stopOpacity="0.15" />
           <stop offset="55%" stopColor="#000" stopOpacity="0" />
-          <stop offset="100%" stopColor="#000" stopOpacity="0.35" />
+          <stop offset="100%" stopColor="#000" stopOpacity="0.18" />
         </linearGradient>
         <linearGradient id="skyGrad" x1="0" y1="0" x2="0" y2="1">
           <stop offset="0%" stopColor={palette.sky} />
@@ -38,7 +38,7 @@ export function RoomLayer({ room, palette }: RoomLayerProps) {
       </defs>
 
       {/* Teto */}
-      <rect x="0" y="0" width="1440" height="70" fill="#070b16" />
+      <rect x="0" y="0" width="1440" height="70" fill="#0b1220" />
       {/* Parede do fundo (tint por mood) */}
       <motion.rect
         x="0"
@@ -51,8 +51,8 @@ export function RoomLayer({ room, palette }: RoomLayerProps) {
       />
       <rect x="0" y="70" width="1440" height="650" fill="url(#wallShade)" />
       {/* Piso */}
-      <rect x="0" y="720" width="1440" height="180" fill="#070b16" />
-      <rect x="0" y="720" width="1440" height="6" fill={palette.light} opacity="0.06" />
+      <rect x="0" y="720" width="1440" height="180" fill="#0c1322" />
+      <rect x="0" y="720" width="1440" height="6" fill={palette.light} opacity="0.14" />
 
       {/* Janela */}
       <g>
@@ -104,9 +104,9 @@ export function RoomLayer({ room, palette }: RoomLayerProps) {
       <AnimatePresence mode="wait">
         <motion.g
           key={room ?? "empty"}
-          initial={{ opacity: 0, y: 24, scale: 0.97 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -24, scale: 0.97 }}
+          initial={{ opacity: 0, y: 24, scale: 1.04 }}
+          animate={{ opacity: 1, y: 0, scale: 1.1 }}
+          exit={{ opacity: 0, y: -24, scale: 1.04 }}
           transition={{ duration: 0.45, ease: "easeOut" }}
           style={{ transformOrigin: "720px 760px" }}
         >
@@ -119,8 +119,9 @@ export function RoomLayer({ room, palette }: RoomLayerProps) {
 
 /** Silhueta do móvel-chave por cômodo, apoiada no piso (y~720-820). */
 function Furniture({ room }: { room: RoomType | null }) {
-  const wood = "#11161f";
-  const wood2 = "#1a212e";
+  const wood = "#1b2536";
+  const wood2 = "#2a3346";
+  const edge = "rgba(148,163,184,0.16)";
   switch (room) {
     case "sala":
       return (
@@ -132,7 +133,7 @@ function Furniture({ room }: { room: RoomType | null }) {
           <rect x="950" y="500" width="220" height="60" rx="4" fill={wood} />
           {/* sofá */}
           <rect x="240" y="640" width="430" height="90" rx="20" fill={wood2} />
-          <rect x="250" y="560" width="410" height="110" rx="18" fill={wood} />
+          <rect x="250" y="560" width="410" height="110" rx="18" fill={wood} stroke={edge} strokeWidth="2" />
           <rect x="260" y="575" width="180" height="80" rx="14" fill={wood2} opacity="0.9" />
           <rect x="470" y="575" width="180" height="80" rx="14" fill={wood2} opacity="0.9" />
           {/* mesa de centro */}
@@ -143,7 +144,7 @@ function Furniture({ room }: { room: RoomType | null }) {
       return (
         <g>
           {/* cabeceira */}
-          <rect x="220" y="430" width="900" height="180" rx="20" fill={wood2} />
+          <rect x="220" y="430" width="900" height="180" rx="20" fill={wood2} stroke={edge} strokeWidth="2" />
           {/* colchão */}
           <rect x="240" y="600" width="860" height="110" rx="14" fill={wood} />
           {/* travesseiros */}
@@ -159,7 +160,7 @@ function Furniture({ room }: { room: RoomType | null }) {
       return (
         <g>
           {/* bancada */}
-          <rect x="120" y="560" width="1200" height="60" rx="6" fill={wood2} />
+          <rect x="120" y="560" width="1200" height="60" rx="6" fill={wood2} stroke={edge} strokeWidth="2" />
           <rect x="120" y="620" width="1200" height="180" fill={wood} />
           {/* gabinetes superiores */}
           <rect x="120" y="300" width="1200" height="120" rx="6" fill={wood} />
@@ -179,7 +180,7 @@ function Furniture({ room }: { room: RoomType | null }) {
       return (
         <g>
           {/* mesa */}
-          <rect x="220" y="640" width="760" height="24" rx="4" fill={wood2} />
+          <rect x="220" y="640" width="760" height="24" rx="4" fill={wood2} stroke={edge} strokeWidth="2" />
           <rect x="250" y="664" width="16" height="120" fill={wood} />
           <rect x="934" y="664" width="16" height="120" fill={wood} />
           {/* monitor */}
@@ -195,7 +196,7 @@ function Furniture({ room }: { room: RoomType | null }) {
       return (
         <g>
           {/* grade */}
-          <rect x="120" y="600" width="1200" height="10" fill={wood} />
+          <rect x="120" y="600" width="1200" height="10" fill={wood} stroke={edge} strokeWidth="1.5" />
           {Array.from({ length: 16 }).map((_, i) => (
             <rect key={i} x={140 + i * 74} y="610" width="8" height="160" fill={wood2} />
           ))}
@@ -214,8 +215,10 @@ function Furniture({ room }: { room: RoomType | null }) {
           <path
             d="M260 700 L320 600 L900 600 L980 700 Z"
             fill={wood2}
+            stroke={edge}
+            strokeWidth="2"
           />
-          <rect x="320" y="640" width="580" height="40" rx="16" fill={wood} />
+          <rect x="320" y="640" width="580" height="40" rx="16" fill={wood} stroke={edge} strokeWidth="2" />
           {/* rodas */}
           <circle cx="400" cy="700" r="44" fill="#0a0f1a" />
           <circle cx="400" cy="700" r="20" fill="#222b3a" />

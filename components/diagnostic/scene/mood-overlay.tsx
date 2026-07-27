@@ -11,7 +11,7 @@ export function MoodOverlay({ palette }: { palette: Palette }) {
   return (
     <motion.div
       className="absolute inset-0"
-      style={{ mixBlendMode: "soft-light" }}
+      style={{ mixBlendMode: "color" }}
       initial={false}
       animate={{ backgroundColor: palette.overlay, opacity: palette.overlayOpacity }}
       transition={{ duration: 0.8, ease: "easeOut" }}
