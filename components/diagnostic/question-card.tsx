@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   DiagnosticQuestion,
   DiagnosticOption,
+  isRangeQuestion,
 } from "@/lib/diagnostic/questions";
+import { formatCurrency } from "@/lib/format";
 
 interface QuestionCardProps {
   question: DiagnosticQuestion;
@@ -94,6 +97,7 @@ export function QuestionCard({
   direction = 1,
 }: QuestionCardProps) {
   const isMulti = question.type === "multi";
+  const isRange = isRangeQuestion(question);
   const selectedValues = isMulti
     ? Array.isArray(value)
       ? value
@@ -136,6 +140,13 @@ export function QuestionCard({
           <p className="mt-2 text-sm text-slate-400">{stageSubtitle}</p>
         )}
 
+        {isRange ? (
+          <BudgetSlider
+            option={question.options[0]}
+            value={value}
+            onChange={(v) => onChange(v)}
+          />
+        ) : (
         <div className="mt-6 grid gap-3 sm:mt-8 sm:grid-cols-2 sm:gap-4 lg:grid-cols-3">
           {question.options.map((opt) => {
             const active = selectedValues.includes(opt.value);
@@ -161,7 +172,80 @@ export function QuestionCard({
             );
           })}
         </div>
+        )}
       </motion.div>
     </AnimatePresence>
+  );
+}
+
+/**
+ * Mapeia o valor numérico do slider para o tier que o motor de recomendação
+ * espera (scoreBudget lê answers.faixa como tier). Mantém o motor inalterado.
+ */
+function numberToTier(n: number): string {
+  if (n < 3000) return "ate_3000";
+  if (n < 7000) return "3000_7000";
+  return "7000_15000";
+}
+
+/** Reverte tier → posição aproximada no slider (para reabrir/perguntas salvas). */
+function tierToNumber(tier: string | string[] | null | undefined): number {
+  switch (typeof tier === "string" ? tier : "") {
+    case "ate_3000":
+      return 2500;
+    case "3000_7000":
+      return 5000;
+    case "7000_15000":
+      return 8500;
+    default:
+      return 5000;
+  }
+}
+
+function BudgetSlider({
+  option,
+  value,
+  onChange,
+}: {
+  option: DiagnosticOption;
+  value: string | string[] | null | undefined;
+  onChange: (value: string) => void;
+}) {
+  const min = option.min ?? 0;
+  const max = option.max ?? 10000;
+  const step = option.step ?? 500;
+  // Estado local para o thumb seguir o arraste suavemente; o tier só é
+  // commitado em onChange. Re-inicializa do valor salvo ao remontar (voltar).
+  const [rangeValue, setRangeValue] = useState<number>(() =>
+    tierToNumber(value),
+  );
+
+  return (
+    <div className="mt-8">
+      <div className="flex items-end justify-between gap-4">
+        <span className="text-4xl font-bold text-white sm:text-5xl">
+          {formatCurrency(rangeValue)}
+        </span>
+        <span className="text-sm text-slate-400">até {formatCurrency(max)}</span>
+      </div>
+      <input
+        type="range"
+        min={min}
+        max={max}
+        step={step}
+        value={rangeValue}
+        onChange={(e) => {
+          const n = Number(e.target.value);
+          setRangeValue(n);
+          onChange(numberToTier(n));
+        }}
+        className="mt-5 h-2 w-full cursor-pointer accent-cyan-400"
+        aria-label="Faixa de investimento"
+      />
+      <div className="mt-2 flex justify-between text-xs text-slate-500">
+        <span>{formatCurrency(min)}</span>
+        <span>{formatCurrency(max)}</span>
+      </div>
+    </div>
   );
 }

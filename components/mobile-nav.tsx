@@ -5,9 +5,7 @@ import Link from "next/link";
 import { Logo } from "./logo";
 
 const NAV_LINKS = [
-  { href: "/#como-funciona", label: "Como funciona" },
-  { href: "/#experiencia", label: "Experiência" },
-  { href: "/#kits", label: "Kits" },
+  { href: "/kits", label: "Kits" },
   { href: "/explorar", label: "Explorar" },
   { href: "/conteudo", label: "Conteúdo" },
   { href: "/instaladores", label: "Instaladores" },
@@ -71,15 +69,9 @@ export function SiteHeader() {
         </Link>
 
         <nav className="hidden items-center gap-6 text-sm font-medium text-slate-300 md:flex lg:gap-8">
-          <a href="/#como-funciona" className="transition-colors hover:text-cyan-300">
-            Como funciona
-          </a>
-          <a href="/#experiencia" className="transition-colors hover:text-cyan-300">
-            Experiência
-          </a>
-          <a href="/#kits" className="transition-colors hover:text-cyan-300">
+          <Link href="/kits" className="transition-colors hover:text-cyan-300">
             Kits
-          </a>
+          </Link>
           <Link href="/explorar" className="transition-colors hover:text-cyan-300">
             Explorar
           </Link>

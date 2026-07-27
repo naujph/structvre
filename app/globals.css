@@ -28,11 +28,7 @@ body {
   min-height: 100vh;
 }
 
-/* Logo S chrome */
-.logo-s {
-  fill: url(#chrome-gradient);
-  filter: drop-shadow(0 0 8px rgba(34, 211, 238, 0.4));
-}
+/* Logo — marca usa acento cyan direto (ver components/logo.tsx) */
 
 /* Glass card */
 .glass-card {

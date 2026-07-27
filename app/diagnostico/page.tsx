@@ -9,6 +9,7 @@ import { SiteHeader } from "@/components/mobile-nav";
 import {
   DiagnosticQuestion,
   groupByStage,
+  isRangeQuestion,
 } from "@/lib/diagnostic/questions";
 import { DiagnosticScene } from "@/components/diagnostic/scene";
 import { formatCurrency } from "@/lib/format";
@@ -161,7 +162,7 @@ export default function DiagnosticPage() {
     setLastAnsweredCode(currentQuestion!.code);
     await saveAnswers(nextAnswers);
 
-    if (currentQuestion!.type === "single") {
+    if (currentQuestion!.type === "single" && !isRangeQuestion(currentQuestion!)) {
       setTimeout(() => advance(), 420);
     }
   }
@@ -288,7 +289,8 @@ export default function DiagnosticPage() {
                     Pular etapa
                   </button>
                 )}
-                {currentQuestion.type === "multi" && (
+                {(currentQuestion.type === "multi" ||
+                  isRangeQuestion(currentQuestion)) && (
                   <button
                     onClick={advance}
                     disabled={

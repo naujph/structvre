@@ -2,6 +2,10 @@ export interface DiagnosticOption {
   value: string;
   label: string;
   icon?: string;
+  /** Presente apenas no tipo "range": limites do slider. */
+  min?: number;
+  max?: number;
+  step?: number;
 }
 
 export interface DiagnosticQuestion {
@@ -22,7 +26,6 @@ export const STAGE_LABELS: Record<string, string> = {
   objetivo: "Objetivo",
   infraestrutura: "Infraestrutura",
   orcamento: "Orçamento",
-  instalacao: "Instalação",
   toque_final: "Toque final",
 };
 
@@ -31,7 +34,6 @@ export const STAGE_SUBTITLES: Record<string, string> = {
   objetivo: "O que você quer resolver",
   infraestrutura: "O que você já tem",
   orcamento: "Quanto pretende investir",
-  instalacao: "Como prefere fazer",
   toque_final: "Opcional — ajuda a personalizar a cena",
 };
 
@@ -40,9 +42,17 @@ export const STAGE_ORDER = [
   "objetivo",
   "infraestrutura",
   "orcamento",
-  "instalacao",
   "toque_final",
 ];
+
+/**
+ * Pergunta de orçamento renderizada como slider (uma única opção marcadora
+ * com value "range" + min/max/step). O card troca os botões por um input range
+ * e a página NÃO avança automaticamente (precisa do botão Avançar).
+ */
+export function isRangeQuestion(q: DiagnosticQuestion): boolean {
+  return q.options.length === 1 && q.options[0].value === "range";
+}
 
 export function groupByStage(questions: DiagnosticQuestion[]) {
   const grouped = new Map<string, DiagnosticQuestion[]>();

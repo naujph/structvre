@@ -7,6 +7,12 @@ const prisma = new PrismaClient();
 // (amazon.com.br/dp/ASIN) em marketplaceUrl para maior conversão.
 // category "assistente" = hub de voz (troca por ecossistema no diagnóstico);
 // category "hub" = bridge Zigbee (agnóstico).
+//
+// ASINs pesquisados em 2026-07 (amazon.com.br). 8 produtos têm dp direto
+// (buildAffiliateUrl anexa ?tag=strv08-20). Os 7 com "#" não estão listados na
+// Amazon BR (Nest Hub 2, HomePod mini, Sonoff Bridge não-Pro, Intelbras IFW
+// 1000 = modelo a confirmar, Aqara Motion P1, BroadLink RM4 Mini, SwitchBot
+// Curtain 2) e seguem no fallback de busca — ainda afiliado, só pousa na busca.
 const PRODUCTS = [
   {
     name: "Amazon Echo Dot 5ª geração",
@@ -16,7 +22,7 @@ const PRODUCTS = [
     compatibility: "alexa",
     price: 449,
     marketplace: "amazon",
-    marketplaceUrl: "#",
+    marketplaceUrl: "https://www.amazon.com.br/dp/B09B8VGCR8",
     affiliateUrl: "#",
     requiresProfessional: false,
     requiresNeutralWire: false,
@@ -64,7 +70,7 @@ const PRODUCTS = [
     compatibility: "alexa,google_home,homekit",
     price: 599,
     marketplace: "amazon",
-    marketplaceUrl: "#",
+    marketplaceUrl: "https://www.amazon.com.br/dp/B08Y1PJZZH",
     affiliateUrl: "#",
     requiresProfessional: false,
     requiresNeutralWire: false,
@@ -112,7 +118,7 @@ const PRODUCTS = [
     compatibility: "alexa,google_home,homekit",
     price: 119,
     marketplace: "amazon",
-    marketplaceUrl: "#",
+    marketplaceUrl: "https://www.amazon.com.br/dp/B08QJLCQB6",
     affiliateUrl: "#",
     requiresProfessional: false,
     requiresNeutralWire: false,
@@ -128,7 +134,7 @@ const PRODUCTS = [
     compatibility: "alexa,google_home",
     price: 129,
     marketplace: "amazon",
-    marketplaceUrl: "#",
+    marketplaceUrl: "https://www.amazon.com.br/dp/B0CPFT8QQK",
     affiliateUrl: "#",
     requiresProfessional: false,
     requiresNeutralWire: false,
@@ -160,7 +166,7 @@ const PRODUCTS = [
     compatibility: "alexa,google_home",
     price: 229,
     marketplace: "amazon",
-    marketplaceUrl: "#",
+    marketplaceUrl: "https://www.amazon.com.br/dp/B07XLML2YS",
     affiliateUrl: "#",
     requiresProfessional: false,
     requiresNeutralWire: false,
@@ -176,7 +182,7 @@ const PRODUCTS = [
     compatibility: "alexa,google_home",
     price: 1299,
     marketplace: "amazon",
-    marketplaceUrl: "#",
+    marketplaceUrl: "https://www.amazon.com.br/dp/B07DJSHN6D",
     affiliateUrl: "#",
     requiresProfessional: true,
     requiresNeutralWire: false,
@@ -192,7 +198,7 @@ const PRODUCTS = [
     compatibility: "alexa,google_home,homekit",
     price: 149,
     marketplace: "amazon",
-    marketplaceUrl: "#",
+    marketplaceUrl: "https://www.amazon.com.br/dp/B07D37VDM3",
     affiliateUrl: "#",
     requiresProfessional: false,
     requiresNeutralWire: false,
@@ -240,7 +246,7 @@ const PRODUCTS = [
     compatibility: "alexa",
     price: 1299,
     marketplace: "amazon",
-    marketplaceUrl: "#",
+    marketplaceUrl: "https://www.amazon.com.br/dp/B0DXNFVJ9H",
     affiliateUrl: "#",
     requiresProfessional: false,
     requiresNeutralWire: false,
@@ -396,28 +402,16 @@ const QUESTIONS = [
   {
     order: 5,
     code: "faixa",
-    question: "Qual faixa de investimento você imagina para começar?",
+    question: "Quanto você pretende investir?",
     stage: "orcamento",
-    options: [
-      { value: "ate_3000", label: "Até R$ 3.000" },
-      { value: "3000_7000", label: "R$ 3.000 a R$ 7.000" },
-      { value: "7000_15000", label: "R$ 7.000 a R$ 15.000" },
-      { value: "acima_15000", label: "Acima de R$ 15.000" },
-    ],
+    // Slider: value "range" é a marca lida por isRangeQuestion; min/max/step
+    // configuram o <input type="range">. O número arrastado é convertido em
+    // tier (<3000/3000-7000/7000-15000) em numberToTier, mantendo o motor de
+    // recomendação (scoreBudget) inalterado.
+    options: [{ value: "range", label: "Faixa de investimento", min: 0, max: 10000, step: 500 }],
   },
   {
     order: 6,
-    code: "modo_instalacao",
-    question: "Como prefere fazer a instalação?",
-    stage: "instalacao",
-    options: [
-      { value: "diy", label: "Quero instalar sozinho" },
-      { value: "instalador", label: "Contratar instalador" },
-      { value: "ver_guia", label: "Ver guia e decidir depois" },
-    ],
-  },
-  {
-    order: 7,
     code: "hobbies",
     question: "O que você mais gosta de fazer em casa?",
     stage: "toque_final",
@@ -462,9 +456,9 @@ async function main() {
     });
   }
 
-  // Desativa perguntas que saíram do fluxo (comeco, protocolo, profissao) —
-  // a rota GET filtra isActive:true, então elas somem do quiz. Soft delete
-  // preserva respostas antigas para análise e é idempotente.
+  // Desativa perguntas que saíram do fluxo (comeco, protocolo, profissao,
+  // modo_instalacao) — a rota GET filtra isActive:true, então elas somem do
+  // quiz. Soft delete preserva respostas antigas para análise e é idempotente.
   const activeCodes = QUESTIONS.map((q) => q.code);
   await prisma.quizQuestion.updateMany({
     where: { code: { notIn: activeCodes } },
