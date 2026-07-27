@@ -49,3 +49,23 @@ body {
     radial-gradient(circle at 90% 10%, rgba(99, 102, 241, 0.10), transparent 35%),
     var(--bg);
 }
+
+/* Cena do diagnóstico — partículas de luz ambientes (drift suave) */
+@keyframes scene-drift {
+  0%   { transform: translate3d(0, 0, 0); opacity: 0; }
+  15%  { opacity: 0.5; }
+  50%  { transform: translate3d(24px, -50px, 0); opacity: 0.35; }
+  85%  { opacity: 0.3; }
+  100% { transform: translate3d(48px, -95px, 0); opacity: 0; }
+}
+
+.scene-mote {
+  position: absolute;
+  width: 5px;
+  height: 5px;
+  border-radius: 9999px;
+  background: rgba(255, 255, 255, 0.45);
+  filter: blur(1px);
+  animation: scene-drift 14s ease-in-out infinite;
+  will-change: transform, opacity;
+}

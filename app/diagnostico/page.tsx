@@ -10,7 +10,7 @@ import {
   DiagnosticQuestion,
   groupByStage,
 } from "@/lib/diagnostic/questions";
-import { resolveBackground } from "@/lib/diagnostic/backgrounds";
+import { DiagnosticScene } from "@/components/diagnostic/scene";
 import { formatCurrency } from "@/lib/format";
 
 interface Recommendation {
@@ -55,7 +55,6 @@ export default function DiagnosticPage() {
     Record<string, string | string[] | null>
   >({});
   const [lastAnsweredCode, setLastAnsweredCode] = useState<string | null>(null);
-  const [detectedPersona, setDetectedPersona] = useState<string | null>(null);
   const [pricePreview, setPricePreview] = useState<number | null>(null);
   const [recommendation, setRecommendation] = useState<Recommendation | null>(
     null
@@ -80,16 +79,6 @@ export default function DiagnosticPage() {
   const currentStage = stages[stageIndex];
   const currentQuestion = currentStage?.questions[questionIndex];
 
-  const backgroundImage = useMemo(() => {
-    const stageKey = currentStage?.key || view;
-    return resolveBackground(
-      stageKey,
-      answers,
-      lastAnsweredCode,
-      detectedPersona
-    );
-  }, [currentStage, view, answers, lastAnsweredCode, detectedPersona]);
-
   function createSession() {
     return fetch("/api/v1/diagnostic/sessions", {
       method: "POST",
@@ -111,7 +100,6 @@ export default function DiagnosticPage() {
         body: JSON.stringify({ answers: payload }),
       });
       const data = await resp.json();
-      if (data.detected_persona) setDetectedPersona(data.detected_persona);
       if (data.price_preview != null) setPricePreview(data.price_preview);
     } catch (err) {
       console.error("Erro ao salvar respostas:", err);
@@ -223,14 +211,8 @@ export default function DiagnosticPage() {
 
   return (
     <div className="relative min-h-screen overflow-hidden">
-      {/* Dynamic background */}
-      <div
-        className="pointer-events-none absolute inset-0 -z-10 bg-cover bg-center transition-all duration-1000"
-        style={{ backgroundImage: `url('${backgroundImage}')` }}
-      >
-        <div className="absolute inset-0 bg-slate-950/70" />
-        <div className="absolute inset-0 bg-gradient-to-b from-slate-950/30 via-transparent to-slate-950/80" />
-      </div>
+      {/* Cena de fundo que evolui com as escolhas */}
+      <DiagnosticScene answers={answers} lastAnsweredCode={lastAnsweredCode} />
 
       <SiteHeader />
 
