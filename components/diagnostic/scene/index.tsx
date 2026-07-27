@@ -27,20 +27,17 @@ export function DiagnosticScene({ answers, lastAnsweredCode }: DiagnosticScenePr
 
   return (
     <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
-      {/* base escura por baixo da sala */}
-      <div className="absolute inset-0 bg-slate-950" />
+      {/* base clara por baixo da sala (fallback, geralmente coberta pelo SVG) */}
+      <div className="absolute inset-0 bg-slate-200" />
       <RoomLayer room={scene.room} palette={palette} />
       <MoodOverlay palette={palette} />
       <PropsLayer props={scene.props} />
       <DeviceLayer device={scene.device} />
       <AmbientMotes />
 
-      {/* scrim base leve — cena visível nas laterais em desktop */}
-      <div className="absolute inset-0 bg-slate-950/35" />
-      {/* zona central escura concentrada atrás do card max-w-3xl (legibilidade do texto) */}
-      <div className="absolute inset-0 bg-[radial-gradient(ellipse_62%_58%_at_50%_42%,rgba(2,6,23,0.78)_0%,rgba(2,6,23,0.58)_45%,transparent_78%)]" />
-      {/* velatura topo/base sutil para profundidade sem matar a sala */}
-      <div className="absolute inset-0 bg-gradient-to-b from-slate-950/30 via-transparent to-slate-950/55" />
+      {/* vinheta leve só pra profundidade — a cena clara fica visível nas laterais,
+          e o card (glass-card quase opaco) se sustenta sozinho no centro */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/10 via-transparent to-black/25" />
     </div>
   );
 }

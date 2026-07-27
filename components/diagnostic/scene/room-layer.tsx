@@ -38,7 +38,7 @@ export function RoomLayer({ room, palette }: RoomLayerProps) {
       </defs>
 
       {/* Teto */}
-      <rect x="0" y="0" width="1440" height="70" fill="#0b1220" />
+      <rect x="0" y="0" width="1440" height="70" fill="#e3eaf2" />
       {/* Parede do fundo (tint por mood) */}
       <motion.rect
         x="0"
@@ -50,9 +50,9 @@ export function RoomLayer({ room, palette }: RoomLayerProps) {
         transition={{ duration: 0.8, ease: "easeOut" }}
       />
       <rect x="0" y="70" width="1440" height="650" fill="url(#wallShade)" />
-      {/* Piso */}
-      <rect x="0" y="720" width="1440" height="180" fill="#0c1322" />
-      <rect x="0" y="720" width="1440" height="6" fill={palette.light} opacity="0.14" />
+      {/* Piso (madeira clara) */}
+      <rect x="0" y="720" width="1440" height="180" fill="#d2c0a2" />
+      <rect x="0" y="720" width="1440" height="6" fill={palette.light} opacity="0.22" />
 
       {/* Janela */}
       <g>
