@@ -369,38 +369,6 @@ const QUESTIONS = [
   },
   {
     order: 3,
-    code: "hobbies",
-    question: "O que você mais gosta de fazer em casa?",
-    stage: "sobre_voce",
-    optional: true,
-    options: [
-      { value: "jogar", label: "Jogar" },
-      { value: "musica", label: "Ouvir música / tocar" },
-      { value: "ler", label: "Ler" },
-      { value: "filmes", label: "Assistir filmes e séries" },
-      { value: "receber", label: "Receber amigos e família" },
-      { value: "trabalhar", label: "Trabalhar / estudar" },
-      { value: "descansar", label: "Descansar" },
-      { value: "tech", label: "Testar tecnologia" },
-    ],
-  },
-  {
-    order: 4,
-    code: "profissao",
-    question: "Qual área te descreve melhor?",
-    stage: "sobre_voce",
-    optional: true,
-    options: [
-      { value: "tech", label: "Tecnologia" },
-      { value: "criativo", label: "Criativo / design" },
-      { value: "saude", label: "Saúde" },
-      { value: "negocios", label: "Negócios" },
-      { value: "educacao", label: "Educação" },
-      { value: "outro", label: "Outro" },
-    ],
-  },
-  {
-    order: 5,
     code: "objetivo_principal",
     question: "Qual é o seu objetivo principal com a automação?",
     stage: "objetivo",
@@ -414,22 +382,7 @@ const QUESTIONS = [
     ],
   },
   {
-    order: 6,
-    code: "comeco",
-    question: "Por qual cômodo você gostaria de começar?",
-    stage: "objetivo",
-    options: [
-      { value: "sala", label: "Sala" },
-      { value: "quarto", label: "Quarto" },
-      { value: "cozinha", label: "Cozinha" },
-      { value: "escritorio", label: "Escritório" },
-      { value: "varanda", label: "Varanda" },
-      { value: "garagem", label: "Garagem" },
-      { value: "corredor", label: "Corredor" },
-    ],
-  },
-  {
-    order: 7,
+    order: 4,
     code: "ecossistema",
     question: "Você já usa algum assistente virtual?",
     stage: "infraestrutura",
@@ -441,20 +394,7 @@ const QUESTIONS = [
     ],
   },
   {
-    order: 8,
-    code: "protocolo",
-    question: "Tem preferência por protocolo de comunicação?",
-    stage: "infraestrutura",
-    optional: true,
-    options: [
-      { value: "zigbee", label: "Zigbee" },
-      { value: "zwave", label: "Z-Wave" },
-      { value: "wifi", label: "Wi-Fi / Matter" },
-      { value: "nenhum", label: "Não sei / não importa" },
-    ],
-  },
-  {
-    order: 9,
+    order: 5,
     code: "faixa",
     question: "Qual faixa de investimento você imagina para começar?",
     stage: "orcamento",
@@ -466,7 +406,7 @@ const QUESTIONS = [
     ],
   },
   {
-    order: 10,
+    order: 6,
     code: "modo_instalacao",
     question: "Como prefere fazer a instalação?",
     stage: "instalacao",
@@ -474,6 +414,24 @@ const QUESTIONS = [
       { value: "diy", label: "Quero instalar sozinho" },
       { value: "instalador", label: "Contratar instalador" },
       { value: "ver_guia", label: "Ver guia e decidir depois" },
+    ],
+  },
+  {
+    order: 7,
+    code: "hobbies",
+    question: "O que você mais gosta de fazer em casa?",
+    stage: "toque_final",
+    optional: true,
+    allowsMultiple: true,
+    options: [
+      { value: "jogar", label: "Jogar" },
+      { value: "musica", label: "Ouvir música / tocar" },
+      { value: "ler", label: "Ler" },
+      { value: "filmes", label: "Assistir filmes e séries" },
+      { value: "receber", label: "Receber amigos e família" },
+      { value: "trabalhar", label: "Trabalhar / estudar" },
+      { value: "descansar", label: "Descansar" },
+      { value: "tech", label: "Testar tecnologia" },
     ],
   },
 ];
@@ -503,6 +461,15 @@ async function main() {
       },
     });
   }
+
+  // Desativa perguntas que saíram do fluxo (comeco, protocolo, profissao) —
+  // a rota GET filtra isActive:true, então elas somem do quiz. Soft delete
+  // preserva respostas antigas para análise e é idempotente.
+  const activeCodes = QUESTIONS.map((q) => q.code);
+  await prisma.quizQuestion.updateMany({
+    where: { code: { notIn: activeCodes } },
+    data: { isActive: false },
+  });
 
   await prisma.kitItem.deleteMany({});
   await prisma.kit.deleteMany({});

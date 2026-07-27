@@ -19,29 +19,29 @@ export interface DiagnosticQuestion {
 
 export const STAGE_LABELS: Record<string, string> = {
   casa: "Sua casa",
-  sobre_voce: "Sobre você",
   objetivo: "Objetivo",
   infraestrutura: "Infraestrutura",
   orcamento: "Orçamento",
   instalacao: "Instalação",
+  toque_final: "Toque final",
 };
 
 export const STAGE_SUBTITLES: Record<string, string> = {
   casa: "Começando pelo espaço",
-  sobre_voce: "Opcional — ajuda a personalizar",
   objetivo: "O que você quer resolver",
   infraestrutura: "O que você já tem",
   orcamento: "Quanto pretende investir",
   instalacao: "Como prefere fazer",
+  toque_final: "Opcional — ajuda a personalizar a cena",
 };
 
 export const STAGE_ORDER = [
   "casa",
-  "sobre_voce",
   "objetivo",
   "infraestrutura",
   "orcamento",
   "instalacao",
+  "toque_final",
 ];
 
 export function groupByStage(questions: DiagnosticQuestion[]) {
